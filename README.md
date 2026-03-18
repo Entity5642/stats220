@@ -1,5 +1,4 @@
-
-Foundation project
+<h1>Foundation project 1</h1>
 # stats220
 
 This is my repo for STATS 220. 
