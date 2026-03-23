@@ -1,7 +1,9 @@
 <h1>Foundation project 1</h1>
+
 # stats220
 
-This is my repo for STATS 220. 
+<h4>This is my repo for STATS 220. </h4>
+
 
 A little about me:
 
