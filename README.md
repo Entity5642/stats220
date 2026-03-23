@@ -15,6 +15,11 @@
   2. Baked Potatoes
   3. Fried Rice
 
+A website that I had to use for every 15 minutes of year 10 information technology class was https://play.typeracer.com/
+
+A website that I used to help prepare for my year 13 exams was https://www.nzqa.govt.nz/ncea/assessment/search.do?query=math&view=exams&level=03
+
+A website that can test your IQ is https://test.mensa.no/Home/Test/en-US/
 
 Some memes that captures how I currently feel about my university studies is
 
