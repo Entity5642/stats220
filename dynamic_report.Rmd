@@ -1,0 +1,224 @@
+---
+title: My dynamic report
+output: html_fragment
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, error=FALSE)
+
+```
+
+
+```{css}
+body {
+  background-color: #fff8dc;
+  font-family: Arial, sans-serif;
+  color: #222222;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+h1, h2 {
+  color: darkred;
+}
+
+img {
+  border: 3px solid black;
+  border-radius: 10px;
+  max-width: 90%;
+}
+
+a {
+  color: darkblue;
+  font-weight: bold;
+}
+```
+
+## Differences of short form videos between two countries
+
+Data was collected on short forms video's of two different countries capturing the video's genre or topic, the creators gender, whether the video was faceless, the number of likes, comments,shares and saves.My data includes both categorical and numerical.
+
+The data collected was from short video platforms Douyin(China) which is the chinese version of TikTok(Global) and also TikTok(global) the international version. Both are similar in user interface.
+
+
+The accounts used for the data collections were brand new users so history and data was recorded of what was shown in the feed.
+
+All this data was to gauge the differences of content between the countries but also to see which particular video topic were more popular.We analyse the differences and similarities of short form video's between New Zealand and China and compare the two. 
+
+
+```{r}
+library(tidyverse)
+
+logged_data <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQFrmTD0GwEy5i75txBknhxcOCAZ8lDlufd9UdSRlxHrbrkzZ05-oVcW-owojbK-rNwZ-1hfFguMt9_/pub?output=csv")
+
+new2_data <- logged_data %>%
+  rename(
+    timestamp = Timestamp,
+    app = `What app is this?`,
+    topic = `What is the short form video's topic`,
+    creator_gender = `What is the gender of the content creator`,
+    faceless = `Is the short form video faceless?`,
+    likes = `How much likes does it have?`,
+    comments = `How much comments?`,
+    shares = `How much shares does it have?`,
+    saves = `How much saves does it have?`
+  ) %>%
+  mutate(
+    topic = str_to_title(topic),
+    topic = if_else(topic == "Livestyle", "Lifestyle", topic),
+    app = case_when(
+      app == "Tik Tok(global version)" ~ "TikTok (Global)",
+      app == "DouYin(chinese tiktok)" ~ "Douyin (China)",
+      TRUE ~ app
+    )
+  )
+
+```
+
+
+
+
+### Top 5 content topics in TikTok (Global)
+
+```{r}
+
+global_top5 <- new2_data %>%
+  filter(app == "TikTok (Global)", !is.na(topic)) %>%
+  count(topic, sort = TRUE) %>%
+  slice_head(n = 5)
+
+
+global_plot <- ggplot(global_top5, aes(x = reorder(topic, -n), y = n)) +
+  geom_col(fill = "darkblue", width = 0.5) +
+  labs(
+    title = "Top 5 Content Topics in TikTok (Global)",
+    x = "Content topic",
+    y = "Number of videos"
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+global_plot 
+```
+
+```{r, results='asis'}
+comment1 <- paste("Bar chart of top 5 most common topics shown in TikTok(global) based in New Zealand")
+cat(comment1)
+```
+
+### Top 5 content topics in Douyin(China)
+
+
+```{r}
+china_top5 <- new2_data %>%
+  filter(app == "Douyin (China)", !is.na(topic)) %>%
+  count(topic, sort = TRUE) %>%
+  slice_head(n = 5)
+
+china_plot <- ggplot(china_top5, aes(x = reorder(topic, -n), y = n)) +
+  geom_col(fill = "darkred", width = 0.5) +
+  labs(
+    title = "Top 5 Content Topics in Douyin (China)",
+    x = "Content topic",
+    y = "Number of videos"
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+china_plot
+```
+
+
+```{r, results='asis'}
+comment2 <- paste("Bar chart of top 5 most common topics shown in Douyin(China) based in China")
+cat(comment2)
+
+```
+
+## Average number of likes(millions) by creator gender
+
+```{r}
+gender_likes_app <- new2_data %>%
+  filter(
+    app %in% c("TikTok (Global)", "Douyin (China)"),
+    !is.na(creator_gender),
+    !is.na(likes)
+  ) %>%
+  group_by(app, creator_gender) %>%
+  summarise(
+    average_likes_millions = mean(likes, na.rm = TRUE) / 1000000
+  )
+
+ggplot(gender_likes_app, aes(x = creator_gender, y = average_likes_millions, fill = app)) +
+  geom_col(position = "dodge", width = 0.5) +
+  labs(
+    title = "Average Likes by Creator Gender",
+    x = "Creator gender",
+    y = "Average likes (millions)",
+    fill = "Platform"
+  ) +
+  scale_fill_manual(values = c(
+    "TikTok (Global)" = "blue",
+    "Douyin (China)" = "red"
+  ))
+```
+
+
+```{r, results='asis'}
+comment3.1 <- paste("Side by side bar chart of creator gender by average likes(millions)")
+cat(comment3.1)
+```
+
+
+## Summary table
+
+
+![Summary Statistics for TikTok (Global) and Douyin (China)](https://i.postimg.cc/S41zW7KG/summary-table.png)
+
+
+```{r, results='asis'}
+comment3 <- paste("The summary table shows the averages likes denoted by millions,Average comments,saves and shares denoted by thousands. For example the 1 in average likes means 1 million. Douyin and tiktok have about same average number of likes but Douyin have 4 times more average comments than TikTok and both average saves and shares is signifcantly more than tiktok")
+cat(comment3)
+```
+
+
+## Engagement per 1,000 likes
+
+![Engagement per 1,000 Likes for TikTok (Global) and Douyin (China)](https://i.postimg.cc/V13rhfnz/sum5-table.png)
+
+
+```{r, results='asis'}
+comment4 <- paste("The summary table shows the amount of comments per 1000 likes, for exmaple Douyin has 36 comments on average per every 1000 likes. The proportion of comments to likes would be 36/1000= 0.036 for Douyin.
+                  Even when looking at proportions of saves and share per 1000 likes, Douyin has signficantly higher proportions than Tiktok")
+cat(comment4)
+```
+
+
+## short form video of summary and analysis of our study
+
+```{r, results='asis'}
+comment5 <- paste("The video of the summary can seen using link: https://www.youtube.com/watch?v=sYJeEab5P6I to see it")
+cat(comment5)
+```
+
+
+## Conclusion
+
+Based on the bar charts of top 5 content topic, we observe comedy,personal,educational,lifestyle and singing genres as most frequently shown content on Tik Tok(global) while story,comedy,lifestyle,Ad and beauty genres as most frequently shown content on Douyin(china).
+
+Bar chart of averages likes by creator gender reveals female and male content creators on Douyin(china) receieved about a similar amount of likes with male creators slightly more. While on TikTok(Global), female content creators disproportionately received significantly more likes than male content creators.
+
+
+We had a limited number of data points(52) so accuracy and reliability could be an issue and something to consider. Having more data points will build a stronger case and could reveal a trend better. Due to the ever changing nature of short form video's content, the current data could become obsolete very quickly.
+
+It is very well possible the trend or patterns we saw in this data set may change or vary given how short form video content is changing rapidly.
+
+
+
+
+
+
+
+
+
